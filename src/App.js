@@ -3,63 +3,55 @@ import { Component } from "react";
 
 class App extends Component {
   state = {
-    counter: 0,
-    posts: [
-      {
-        id: 1,
-        title: "O título 1",
-        body: "O corpo 1",
-      },
-      {
-        id: 2,
-        title: "O título 2",
-        body: "O corpo 2",
-      },
-      {
-        id: 3,
-        title: "O título 3",
-        body: "O corpo 3",
-      },
-    ]
+    posts: [],
   };
 
-  timeOutUpdate = null;
-  
   componentDidMount() {
-    this.handleTimeout();
-  }
-  
-  componentDidUpdate() {
-    this.handleTimeout();
+    //Aqui estou carregando tudo definido em loadPosts
+    this.loadPosts();
   }
 
-  componentWillUnmount() {
-    clearTimeout(this.timeOutUpdate);
-  }
+  loadPosts = async () => {
+    // Aqui estou pegando os dados de uma "APi" atraves do fetch
+    const postsResponse = fetch("https://jsonplaceholder.typicode.com/posts");
 
-  handleTimeout = () => {
-    const { posts, counter } = this.state;
-    posts[0].title = 'O título mudou';
+    const photosResponse = fetch("https://jsonplaceholder.typicode.com/photos");
 
-    this.timeOutUpdate = setTimeout(() => {
-      this.setState({ posts, counter: counter + 1});
-    }, 1000);
-  }
+    // Aqui estou esperando a resposta da "API" na Promise
+    const [posts, photos] = await Promise.all([postsResponse, photosResponse]);
 
+    // Aqui estou pegando a resposta "posts" e trasformando em um Json
+    const postsJson = await posts.json();
+    const photosJson = await photos.json();
+
+    //Aqui estou definindo que quero a mesma quantidade de posts e fotos, já que tenho 5000 fotos e 100 posts
+    // Fazendo mapeando e retornando um novo array com posts e fotos unidas
+    // Para cada post estou pegando um indice de fotos, no caso sua URL
+    const postsAndPhotos = postsJson.map((post, index) => {
+      return { ...post, cover: photosJson[index].url };
+    });
+
+    // Aqui estou colocando um estado
+    this.setState({ posts: postsAndPhotos });
+  };
 
   render() {
-    const { posts, counter } = this.state;
+    const { posts } = this.state;
 
     return (
-      <div className="App">
-        <h1>{ counter }</h1>
-        {posts.map((post) => (
-          <div key={post.id}>
-            <h1>{post.title}</h1>
-            <p>{post.body}</p>
-          </div>
-        ))}
-      </div>
+      <section className="container">
+        <div className="posts">
+          {posts.map((post) => (
+            <div className="post">
+              <img src={post.cover} alt={post.title}></img>
+              <div key={post.id} className="post-content">
+                <h1>{post.title}</h1>
+                <p>{post.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     );
   }
 }
