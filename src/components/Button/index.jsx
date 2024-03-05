@@ -4,7 +4,7 @@ import { Component } from "react";
 
 export class Button extends Component{
     render() {
-        const {text, onClick, disabled} = this.props;
+        const {text, onClick, disabled,} = this.props;
         return(
          // esse onClick de fato é o evento.   
          <button 

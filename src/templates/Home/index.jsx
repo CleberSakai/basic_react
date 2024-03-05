@@ -12,7 +12,7 @@ export class Home extends Component {
     posts: [],
     allPosts: [],
     page: 0,
-    postsPerPage: 53,
+    postsPerPage: 20,
     searchValue: "",
   };
 
@@ -35,8 +35,8 @@ export class Home extends Component {
 
     const nextPage = page + postsPerPage;
     // aqui estou definindo quais irão ser os proximos dois posts
-    const nexPosts = allPosts.slice(nextPage, nextPage + postsPerPage);
-    posts.push(...nexPosts);
+    const nextPosts = allPosts.slice(nextPage, nextPage + postsPerPage);
+    posts.push(...nextPosts);
 
     this.setState({ posts, page: nextPage });
   };
@@ -75,6 +75,7 @@ export class Home extends Component {
         <div className="button-container">
           {!searchValue && (
             <Button
+              onClick={this.loadMorePosts}
               text={"Load More posts"}
               disabled={noMorePosts}
             />
