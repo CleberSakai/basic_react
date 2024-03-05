@@ -5,6 +5,7 @@ import { Component } from "react";
 import { loadPosts } from "../../utils/load-posts";
 import { Posts } from "../../components/Posts";
 import { Button } from "../../components/Button";
+import { TextInput } from "../../components/Text Input";
 
 export class Home extends Component {
   state = {
@@ -12,6 +13,7 @@ export class Home extends Component {
     allPosts: [],
     page: 0,
     postsPerPage: 53,
+    searchValue: "",
   };
 
   async componentDidMount() {
@@ -39,22 +41,44 @@ export class Home extends Component {
     this.setState({ posts, page: nextPage });
   };
 
+  handleChange = (e) => {
+    const { value } = e.target;
+    this.setState({ searchValue: value });
+  };
+
   render() {
-    const { posts, page, postsPerPage, allPosts } = this.state;
+    const { posts, page, postsPerPage, allPosts, searchValue } = this.state;
     // definindo o limite para alterar o estado do button
     const noMorePosts = page + postsPerPage >= allPosts.length;
 
+    const filtredPosts = !!searchValue
+      ? allPosts.filter((post) => {
+          return post.title.toLowerCase().includes(searchValue.toLowerCase());
+        })
+      : posts;
+
     return (
       <section className="container">
-        <Posts posts={posts} />
+        <div className="search-container">
+          {!!searchValue && <h1>Search Value: {searchValue}</h1>}
+
+          <TextInput
+            searchValue={searchValue}
+            handleChange={this.handleChange}
+          />
+        </div>
+
+        {filtredPosts.length > 0 && <Posts posts={filtredPosts} />}
+
+        {filtredPosts.length === 0 && <p>No posts</p>}
 
         <div className="button-container">
-          <Button
-            //isso aqui não é um evento, sim um atributo que vai chegar como props do meu componente
-            onClick={this.loadMorePosts}
-            text={"Load More posts"}
-            disabled={noMorePosts}
-          />
+          {!searchValue && (
+            <Button
+              text={"Load More posts"}
+              disabled={noMorePosts}
+            />
+          )}
         </div>
       </section>
     );
